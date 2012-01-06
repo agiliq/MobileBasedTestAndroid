@@ -3,5 +3,8 @@
 
     <string name="hello">Hello World, MobileBasedTestAndroid!</string>
     <string name="app_name">MobileBasedTestAndroid</string>
+    <string name="text_username">User Name:</string>
+    <string name="text_password">Password:</string>
+    <string name="text_login">Login</string>
 
 </resources>
