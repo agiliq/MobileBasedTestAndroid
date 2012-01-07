@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,7 +78,8 @@ public class MobileBasedTestAndroid extends Activity implements OnClickListener 
 				
 				Log.i("exam_id", exam_id);
 				
-				JSONArray question_array = json.getJSONArray("questions"); 
+				JSONArray question_array = json.getJSONArray("questions");
+				Log.i("question_array", question_array);
 
 			}
 			catch(/*JSONException */Exception e) {
