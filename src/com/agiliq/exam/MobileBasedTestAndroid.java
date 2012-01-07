@@ -1,13 +1,12 @@
 package com.agiliq.exam;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -19,70 +18,60 @@ import com.agiliq.exam.net.RestJsonClient;
 
 
 public class MobileBasedTestAndroid extends Activity implements OnClickListener {
-	EditText username, password;
+
+	EditText edit_text_username;
+	EditText edit_text_password;
+
+	String username;
+	String password;
 
 	TextView error;
 	Button login_button;
 
+	JSONObject json;
+	String result;
+
 	private SharedPreferences settings;
 	private ProgressDialog progress;       
 
-	private static final String DEB_TAG = "Json_MBT_Android";
 	public static final String PREFS_NAME = "MBT_Android_prefs";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
 		// Restore preferences
 		settings = getSharedPreferences(PREFS_NAME, 0);
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		username = (EditText)findViewById(R.id.edit_text_username);
-		password = (EditText)findViewById(R.id.edit_text_password);
-
 		login_button = (Button)findViewById(R.id.button_login);
 		error = (TextView)findViewById(R.id.text_view_error);
 
 		login_button.setOnClickListener(this);
-
 	}
 
 	public void onClick(View v) {
 
-		EditText edit_text_username = (EditText) findViewById(R.id.edit_text_username);
-		EditText edit_text_password = (EditText) findViewById(R.id.edit_text_password);
+		edit_text_username = (EditText) findViewById(R.id.edit_text_username);
+		edit_text_password = (EditText) findViewById(R.id.edit_text_password);
 
-		String username = edit_text_username.getText().toString();
-		String password = edit_text_password.getText().toString();
+		username = edit_text_username.getText().toString();
+		password = edit_text_password.getText().toString();
 
 		if(edit_text_username == null || edit_text_password == null){
 			// show some warning
 		}
 		else {
 
-            try {
+			try {
 				showBusyCursor(true);
-
 				progress = ProgressDialog.show(this, "Please wait...", "Login in process", true);
-
-				Log.i(DEB_TAG, "Username: " + username + "Password: " + password);
-				//Log.i(DEB_TAG, "Requesting to " + address);
-
-				JSONObject json = RestJsonClient.connect(username, password);
-				
-				String exam_id = json.getString("exam_id");
-				
-				Log.i("exam_id", exam_id);
-				
-				JSONArray question_array = json.getJSONArray("questions");
-				Log.i("question_array", question_array);
-
+				json = RestJsonClient.connect(username, password);
+				result = json.toString();
 			}
-			catch(/*JSONException */Exception e) {
+			catch(Exception e) {
 				e.printStackTrace();
 				showBusyCursor(false);
 			}
@@ -93,7 +82,8 @@ public class MobileBasedTestAndroid extends Activity implements OnClickListener 
 			editor.putString("Password", password);
 			editor.commit();
 			showBusyCursor(false);
-			next();
+
+			next(result);
 		}
 	}
 
@@ -105,17 +95,16 @@ public class MobileBasedTestAndroid extends Activity implements OnClickListener 
 	public void setPasswordText(String username){
 		EditText passwordEditText = (EditText) findViewById(R.id.edit_text_password);
 		passwordEditText.setText(username);
-
 	}
 
 	private void showBusyCursor(Boolean show){
 		setProgressBarIndeterminateVisibility(show);
 	}
 
-	private void next(){
-		// you can call another activity by uncommenting the above lines
-		//Intent myIntent = new Intent( this.getBaseContext() , LoggedActivity.class);
-		//startActivityForResult(myIntent, 0);
+	private void next(String result){
+		Intent myIntent = new Intent( this.getBaseContext() , MBTExam.class);
+		myIntent.putExtra("result", result);
+		startActivityForResult(myIntent, 0);
 	}
 
 }
