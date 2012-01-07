@@ -1,18 +1,17 @@
 package com.agiliq.exam.net;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,24 +24,37 @@ public class RestJsonClient {
 
     public static JSONObject connect(String username, String password)
     {
-
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(url); 
+ 
         HttpResponse response;
         
         JSONObject json = new JSONObject();
 
+        
+        
+    	DefaultHttpClient http_client = new DefaultHttpClient();
+    	
+        HttpParams params = http_client.getParams();  
+        
+        HttpConnectionParams.setConnectionTimeout(params, 5000);
+        HttpConnectionParams.setSoTimeout(params, 5000);
+
+        HttpGet http_get = new HttpGet(url);  
+        URI get_uri = http_get.getURI();
+        
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(username, password);
+        AuthScope scope = new AuthScope(get_uri.getHost(), get_uri.getPort());
+        http_client.getCredentialsProvider().setCredentials(scope, credential);
+
+  /*
+        conn.setRequestProperty(
+               "Authorization",
+               "basic " +  Base64.encode("user1:pass1".getBytes(),
+                                         Base64.DEFAULT)
+              );*/
+
         try {
         	
-        	// Add your data
-        	List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-
-        	nameValuePairs.add(new BasicNameValuePair("username", username));
-        	nameValuePairs.add(new BasicNameValuePair("password", password));
-
-        	httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-        	response = httpclient.execute(httppost);
+        	response = http_client.execute(http_get);
 
         	// A Simple JSON Response Read
         	String result = EntityUtils.toString(response.getEntity());
