@@ -1,59 +1,71 @@
 package com.agiliq.exam.net;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class RestJsonClient {
 	
-	static String url = "http://178.79.174.19/api/login/";
+	private static String url = "http://178.79.174.19/api/login/";
 
-    public static JSONObject connect(String username, String password)
-    {
-     	DefaultHttpClient http_client = new DefaultHttpClient();	
-        HttpResponse response;
-        JSONObject json = new JSONObject();
-        
-     	HttpParams params = http_client.getParams();  
-        
-        HttpConnectionParams.setConnectionTimeout(params, 5000);
-        HttpConnectionParams.setSoTimeout(params, 5000);
+    public static JSONObject getQuestions(String username, String password){
 
-        HttpGet http_get = new HttpGet(url);  
-        URI get_uri = http_get.getURI();
-        
-        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(username, password);
-        AuthScope scope = new AuthScope(get_uri.getHost(), get_uri.getPort());
-        
-        http_client.getCredentialsProvider().setCredentials(scope, credential);
+    	InputStream is = null;
+    	String result = "";
+    	JSONObject jArray = null;
 
-        try {
-        	
-        	response = http_client.execute(http_get);
-        	String result = EntityUtils.toString(response.getEntity());
-        	json = new JSONObject(result);
+    	try{
+    		DefaultHttpClient http_client = new DefaultHttpClient();
 
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        return json;
+            HttpGet http_get = new HttpGet(url);  
+            URI get_uri = http_get.getURI();
+            
+            UsernamePasswordCredentials credential = new UsernamePasswordCredentials(username, password);
+            AuthScope scope = new AuthScope(get_uri.getHost(), get_uri.getPort());
+            
+            http_client.getCredentialsProvider().setCredentials(scope, credential);
+
+    		HttpResponse response = http_client.execute(http_get);
+    		HttpEntity entity = response.getEntity();
+    		is = entity.getContent();
+
+    	} catch(Exception e){
+    		Log.e("log_tag", "Error in http connection " + e.toString());
+    	}
+
+    	try{
+    		BufferedReader reader = new BufferedReader(new InputStreamReader(is,"iso-8859-1"),8);
+    		StringBuilder sb = new StringBuilder();
+    		String line = null;
+    		while ((line = reader.readLine()) != null) {
+    			sb.append(line + "\n");
+    		}
+    		is.close();
+    		result=sb.toString();
+    		Log.i("result",result);
+    	} catch(Exception e){
+    		Log.e("log_tag", "Error converting result "+e.toString());
+    	}
+
+    	//try parse the string to a JSON object
+    	try{
+            	jArray = new JSONObject(result);
+    	}catch(JSONException e){
+    		Log.e("log_tag", "Error parsing data "+e.toString());
+    	}
+
+    	return jArray;
     }
 }

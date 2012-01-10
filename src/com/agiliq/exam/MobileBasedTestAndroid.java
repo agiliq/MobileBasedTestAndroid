@@ -68,7 +68,7 @@ public class MobileBasedTestAndroid extends Activity implements OnClickListener 
 			try {
 				showBusyCursor(true);
 				progress = ProgressDialog.show(this, "Please wait...", "Login in process", true);
-				json = RestJsonClient.connect(username, password);
+				json = RestJsonClient.getQuestions(username, password);
 				result = json.toString();
 			}
 			catch(Exception e) {
