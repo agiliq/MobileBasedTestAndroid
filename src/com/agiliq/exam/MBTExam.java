@@ -33,10 +33,10 @@ public class MBTExam extends ListActivity {
 
 			ArrayList<HashMap<String, String>> mylist = new ArrayList<HashMap<String, String>>();
 
-			for (int i = 1; i <= question_list_json.length() ; i++) {
+			for (int i = 1; i <= question_list_json.length(); i++) {
 
 				HashMap<String, String> map = new HashMap<String, String>();
-				JSONObject e = question_list_json.getJSONObject(i-1);
+				JSONObject e = question_list_json.getJSONObject(i - 1);
 
 				map.put("id", new Integer(i).toString());
 				map.put("question", e.getString("question"));
@@ -48,11 +48,10 @@ public class MBTExam extends ListActivity {
 				mylist.add(map);
 			}
 
-			ListAdapter adapter = new SimpleAdapter(this, 
-					mylist,
-					R.layout.mbt_test,
-					new String[] { "id", "question", "A", "B", "C", "D" },
-					new int[] { R.id.question_no, R.id.question, R.id.A, R.id.B, R.id.C, R.id.D });
+			ListAdapter adapter = new SimpleAdapter(this, mylist,
+					R.layout.mbt_test, new String[] { "id", "question", "A",
+							"B", "C", "D" }, new int[] { R.id.question_no,
+							R.id.question, R.id.A, R.id.B, R.id.C, R.id.D });
 
 			setListAdapter(adapter);
 
